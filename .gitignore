@@ -1,0 +1,11 @@
+node_modules/
+.venv/
+data/*.db
+backups/
+exports/
+.db
+arriere-plan_back_end/backups/
+arriere-plan_back_end/exports/
+.next/
+out/
+interface_front_end/.env.local

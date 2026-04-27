@@ -1,0 +1,20 @@
+{
+  "$schema": "../interface_front_end/node_modules/wrangler/config-schema.json",
+  "main": "../interface_front_end/.open-next/worker.js",
+  "name": "projet-site-web-ing1",
+  "compatibility_date": "2026-04-07",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": "../interface_front_end/.open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "projet-site-web-ing1"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  }
+}

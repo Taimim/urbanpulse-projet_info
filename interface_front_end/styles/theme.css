@@ -1,0 +1,72 @@
+:root {
+  --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Fond et surfaces */
+  --color-bg: #f4faf6;
+  --color-bg-subtle: #e8f5ec;
+  --color-surface: #ffffff;
+
+  /* Texte — contraste > 7:1 sur le fond clair */
+  --color-text: #0d1f12;
+  --color-muted: #3d5c47;
+
+  /* Bordures */
+  --color-border: #b8d9c2;
+
+  /* Accent vert — #166534 sur blanc = 7.4:1 (WCAG AAA) */
+  --color-accent: #166534;
+  --color-accent-soft: #dcfce7;
+  --color-accent-strong: #14532d;
+  --color-focus: #15803d;
+  --color-btn-text: #ffffff;
+
+  /* Sidebar vert très sombre */
+  --color-sidebar-bg: #0d1f12;
+  --color-sidebar-text: #d4edda;
+  --color-sidebar-muted: #6fa87d;
+  --color-sidebar-border: #1a3322;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.07);
+
+  --shadow-soft: 0 4px 20px rgba(13, 31, 18, 0.09);
+  --gradient-header: linear-gradient(135deg, #14532d 0%, #166534 55%, #15803d 100%);
+
+  /* Dimensions sidebar */
+  --sidebar-width: 220px;
+  --sidebar-collapsed-width: 58px;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-pill: 999px;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #071a0d;
+  --color-bg-subtle: #0d2415;
+  --color-surface: #0f2318;
+  --color-text: #d4edda;
+  --color-muted: #7aab85;
+  --color-border: #1e4229;
+  /* Accent plus clair en dark pour maintenir le contraste : #4ade80 sur #0f2318 = 6.8:1 */
+  --color-accent: #4ade80;
+  --color-accent-soft: #14532d;
+  --color-accent-strong: #bbf7d0;
+  --color-focus: #4ade80;
+  /* Texte sombre sur accent clair en dark : #071a0d sur #4ade80 = 11:1 WCAG AAA */
+  --color-btn-text: #071a0d;
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --gradient-header: linear-gradient(135deg, #071a0d 0%, #0f2318 55%, #132d1e 100%);
+
+  --color-sidebar-bg: #050f08;
+  --color-sidebar-text: #c3e6cb;
+  --color-sidebar-muted: #3d6647;
+  --color-sidebar-border: #0d2415;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.05);
+}
