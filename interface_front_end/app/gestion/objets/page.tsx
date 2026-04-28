@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 export default async function ManagementItemsPage() {
   const cookieStore = await cookies();
   const role = cookieStore.get("user_role")?.value?.toLowerCase() ?? "";
-  const lectureSeule = role !== "complexe";
+  const estAdmin = role === "administrateur";
+  const lectureSeule = !["complexe", "administrateur"].includes(role);
 
   const { items } = await fetchManagementObjects();
 
@@ -32,6 +33,7 @@ export default async function ManagementItemsPage() {
           mode: objet.mode,
         }))}
         lectureSeule={lectureSeule}
+        suppressionDirecte={estAdmin}
       />
       <ServiceConfigurationsTable configurations={configurations} lectureSeule={lectureSeule} />
     </PageBlock>

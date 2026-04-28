@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
-import { addObject, updateObject, toggleObject, requestDeleteObject, updateServiceConfiguration } from "@/lib/backend-api";
+import { addObject, updateObject, toggleObject, requestDeleteObject, deleteManagedObject, updateServiceConfiguration } from "@/lib/backend-api";
 import { BoiteMessage, exigerJetonSession } from "./auth-profile";
 
 type MessageRetour = { type: "success" | "error"; text: string } | null;
@@ -41,7 +41,7 @@ type ObjetGestion = {
   mode?: string | null;
 };
 
-export function ObjectManagementForms({ objects: objets, lectureSeule = false }: { objects: ObjetGestion[]; lectureSeule?: boolean }) {
+export function ObjectManagementForms({ objects: objets, lectureSeule = false, suppressionDirecte = false }: { objects: ObjetGestion[]; lectureSeule?: boolean; suppressionDirecte?: boolean }) {
   const router = useRouter();
   const [messageRetour, setMessageRetour] = useState<MessageRetour>(null);
   const [afficherFormulaireAjout, setAfficherFormulaireAjout] = useState(false);
@@ -109,6 +109,18 @@ export function ObjectManagementForms({ objects: objets, lectureSeule = false }:
     }
   }
 
+  async function gererSuppressionDirecte(id: number) {
+    setMessageRetour(null);
+    try {
+      const jeton = exigerJetonSession();
+      await deleteManagedObject(jeton, id);
+      setMessageRetour({ type: "success", text: "Objet supprimé." });
+      router.refresh();
+    } catch (err) {
+      setMessageRetour({ type: "error", text: String(err) });
+    }
+  }
+
   const MODES = ["Automatique", "Manuel", "Eco"];
 
   return (
@@ -169,7 +181,10 @@ export function ObjectManagementForms({ objects: objets, lectureSeule = false }:
                         <div className="btn-action-group">
                           <button onClick={() => gererBasculeEtat(objet.id)} aria-label={objet.status === "Actif" ? `Désactiver ${objet.name}` : `Activer ${objet.name}`} style={btnSecondaire}>{objet.status === "Actif" ? "Désactiver" : "Activer"}</button>
                           <button onClick={() => idConfiguration === objet.id ? setIdConfiguration(null) : ouvrirConfiguration(objet)} aria-label={`Configurer ${objet.name}`} style={btnSecondaire}>{idConfiguration === objet.id ? "Fermer" : "Configurer"}</button>
-                          <button onClick={() => setIdSuppressionModal(idSuppressionModal === objet.id ? null : objet.id)} aria-label={`Demander la suppression de ${objet.name}`} style={btnSecondaire}>{idSuppressionModal === objet.id ? "Annuler" : "Demander suppression"}</button>
+                          {suppressionDirecte
+                            ? <button onClick={() => { if (window.confirm(`Supprimer "${objet.name}" ?`)) gererSuppressionDirecte(objet.id); }} aria-label={`Supprimer ${objet.name}`} style={{ ...btnSecondaire, color: "var(--color-danger, #c0392b)" }}>Supprimer</button>
+                            : <button onClick={() => setIdSuppressionModal(idSuppressionModal === objet.id ? null : objet.id)} aria-label={`Demander la suppression de ${objet.name}`} style={btnSecondaire}>{idSuppressionModal === objet.id ? "Annuler" : "Demander suppression"}</button>
+                          }
                         </div>
                       </td>
                     )}
@@ -187,7 +202,7 @@ export function ObjectManagementForms({ objects: objets, lectureSeule = false }:
                       </td>
                     </tr>
                   )}
-                  {idSuppressionModal === objet.id && (
+                  {!suppressionDirecte && idSuppressionModal === objet.id && (
                     <tr key={`supp-${objet.id}`}>
                       <td colSpan={6} style={{ padding: "0.75rem 1rem", background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
                         <strong style={{ display: "block", marginBottom: "0.5rem" }}>Demande de suppression — {objet.name}</strong>
