@@ -49,13 +49,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (pathname === "/authentification") {
-    const destination =
-      roleUtilisateur === "administrateur"
-        ? "/administration/utilisateurs"
-        : roleUtilisateur === "complexe"
-          ? "/gestion/objets"
-          : "/gestion/objets";
-    return NextResponse.redirect(new URL(destination, request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (PREFIXES_ADMIN.some((prefixe) => pathname.startsWith(prefixe)) && roleUtilisateur !== "administrateur") {

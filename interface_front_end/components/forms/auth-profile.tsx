@@ -100,13 +100,11 @@ export function AuthForms() {
       if (resultat.newly_validated) {
         setCompteValide(true);
         setTimeout(() => {
-          const role = resultat.user.role.toLowerCase();
-          window.location.href = role === "administrateur" ? "/administration/utilisateurs" : role === "complexe" ? "/gestion/objets" : "/utilisateur/profil";
+          window.location.href = "/";
         }, 2500);
         return;
       }
-      const role = resultat.user.role.toLowerCase();
-      window.location.href = role === "administrateur" ? "/administration/utilisateurs" : role === "complexe" ? "/gestion/objets" : "/utilisateur/profil";
+      window.location.href = "/";
     } catch (err) {
       setMessageRetour({ type: "error", text: String(err) });
     } finally {
