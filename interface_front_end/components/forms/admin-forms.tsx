@@ -347,7 +347,14 @@ export function UserManagementForms({ users }: { users: Array<{ id: number; logi
   const [editingRoleId, setEditingRoleId] = useState<number | null>(null);
   const [resetPasswordId, setResetPasswordId] = useState<number | null>(null);
   const [newPasswordValue, setNewPasswordValue] = useState("");
-  const [newUser, setNewUser] = useState({ login: "", email: "", password: "", role: "simple", level: "debutant", points: "0" });
+  const [newUser, setNewUser] = useState({ login: "", email: "", password: "", role: "simple", points: "0" });
+
+  function niveauDepuisPoints(points: number): string {
+    if (points >= 1000) return "expert";
+    if (points >= 600) return "avance";
+    if (points >= 200) return "intermediaire";
+    return "debutant";
+  }
 
   async function handleUpdateRole(userId: number, login: string) {
     const newRole = roleDrafts[userId];
@@ -400,9 +407,10 @@ export function UserManagementForms({ users }: { users: Array<{ id: number; logi
     setMessageRetour(null);
     try {
       const jeton = exigerJetonSession();
-      await createAdminUser(jeton, { login: newUser.login.trim(), email: newUser.email.trim(), password: newUser.password, role: newUser.role, level: newUser.level, points: Number(newUser.points || 0), is_validated: 1 });
+      const pts = Number(newUser.points || 0);
+      await createAdminUser(jeton, { login: newUser.login.trim(), email: newUser.email.trim(), password: newUser.password, role: newUser.role, level: niveauDepuisPoints(pts), points: pts, is_validated: 1 });
       setMessageRetour({ type: "success", text: `Utilisateur ${newUser.login} créé.` });
-      setNewUser({ login: "", email: "", password: "", role: "simple", level: "debutant", points: "0" });
+      setNewUser({ login: "", email: "", password: "", role: "simple", points: "0" });
       router.refresh();
     } catch (err) {
       setMessageRetour({ type: "error", text: String(err) });
@@ -440,12 +448,9 @@ export function UserManagementForms({ users }: { users: Array<{ id: number; logi
                   <option value="simple">simple</option><option value="complexe">complexe</option><option value="administrateur">administrateur</option>
                 </select>
               </label>
-              <label>Niveau :
-                <select value={newUser.level} onChange={(e) => setNewUser({ ...newUser, level: e.target.value })}>
-                  <option value="debutant">debutant</option><option value="intermediaire">intermediaire</option><option value="avance">avance</option><option value="expert">expert</option>
-                </select>
+              <label>Points :<input type="number" min={0} value={newUser.points} onChange={(e) => setNewUser({ ...newUser, points: e.target.value })} />
+                <small style={{ color: "var(--color-muted)", fontSize: "0.78rem" }}>0–199 = débutant · 200–599 = intermédiaire · 600–999 = avancé · 1000+ = expert</small>
               </label>
-              <label>Points :<input type="number" value={newUser.points} onChange={(e) => setNewUser({ ...newUser, points: e.target.value })} /></label>
             </div>
             <button type="submit" style={{ marginTop: "1rem" }}>Créer l&apos;utilisateur</button>
           </form>

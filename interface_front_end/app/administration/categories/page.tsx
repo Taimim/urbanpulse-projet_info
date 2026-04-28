@@ -1,21 +1,19 @@
 import { PageBlock } from "@/components/page-block";
-import { fetchAdminCategories, fetchAdminServices, fetchManagementObjects, fetchAdminDeletionRequests } from "@/lib/backend-api";
-import { CategoryForms, ServiceManagementForms } from "@/components/action-forms";
+import { fetchAdminCategories, fetchAdminDeletionRequests } from "@/lib/backend-api";
+import { CategoryForms } from "@/components/action-forms";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCategoriesPage() {
-  const [{ categories }, { services }, { items }, { requests }] = await Promise.all([
+  const [{ categories }, { requests }] = await Promise.all([
     fetchAdminCategories(),
-    fetchAdminServices(),
-    fetchManagementObjects(),
     fetchAdminDeletionRequests(),
   ]);
 
   return (
     <PageBlock
-      title="Admin • Objets et services"
-      description="Gérez les catégories, objets, services et demandes de suppression."
+      title="Admin • Catégories"
+      description="Gérez les catégories et les demandes de suppression d'objets."
     >
       {requests.length > 0 && (
         <div className="card" style={{ borderLeft: "4px solid var(--color-accent)" }}>
@@ -36,11 +34,6 @@ export default async function AdminCategoriesPage() {
         </div>
       )}
       <CategoryForms categories={categories} />
-      <ServiceManagementForms
-        categories={categories}
-        services={services}
-        objects={items.map((item) => ({ id: item.id, name: item.name, status: item.status }))}
-      />
     </PageBlock>
   );
 }

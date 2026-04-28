@@ -1,5 +1,5 @@
 export { AuthForms, ProfileForm, UserLevelActions } from "@/components/forms/auth-profile";
-export { ObjectManagementForms, ServiceConfigurationsTable } from "@/components/forms/object-service-forms";
+export { ObjectManagementForms, ServiceConfigurationsTable, AdminServicesSection } from "@/components/forms/object-service-forms";
 export {
   CategoryForms,
   ServiceManagementForms,

@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
-import { addObject, updateObject, toggleObject, requestDeleteObject, deleteManagedObject, updateServiceConfiguration } from "@/lib/backend-api";
+import { addObject, updateObject, toggleObject, requestDeleteObject, deleteManagedObject, updateServiceConfiguration, addAdminService, deleteAdminService } from "@/lib/backend-api";
 import { BoiteMessage, exigerJetonSession } from "./auth-profile";
 
 type MessageRetour = { type: "success" | "error"; text: string } | null;
@@ -293,6 +293,109 @@ export function ServiceConfigurationsTable({
                 )}
               </Fragment>
             ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ── AdminServicesSection ───────────────────────────────────────────────────
+
+export function AdminServicesSection({
+  services,
+  categories,
+}: {
+  services: Array<{ id: number; name: string; description: string; status: string; category_name: string; category_id: number }>;
+  categories: Array<{ id: number; name: string; category_type: string }>;
+}) {
+  const router = useRouter();
+  const [messageRetour, setMessageRetour] = useState<MessageRetour>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [nouveauService, setNouveauService] = useState({
+    name: "",
+    description: "",
+    status: "Actif",
+    category_id: categories.find((c) => c.category_type === "service")?.id ?? categories[0]?.id ?? 1,
+  });
+
+  async function gererAjout(e: React.FormEvent) {
+    e.preventDefault();
+    setMessageRetour(null);
+    try {
+      const jeton = exigerJetonSession();
+      await addAdminService(jeton, nouveauService);
+      setMessageRetour({ type: "success", text: `Service "${nouveauService.name}" ajouté.` });
+      setNouveauService((p) => ({ ...p, name: "", description: "" }));
+      router.refresh();
+    } catch (err) {
+      setMessageRetour({ type: "error", text: String(err) });
+    }
+  }
+
+  async function gererSuppression(id: number, nom: string) {
+    if (!confirm(`Supprimer le service "${nom}" ?`)) return;
+    setMessageRetour(null);
+    try {
+      const jeton = exigerJetonSession();
+      await deleteAdminService(jeton, id);
+      setMessageRetour({ type: "success", text: `Service "${nom}" supprimé.` });
+      router.refresh();
+    } catch (err) {
+      setMessageRetour({ type: "error", text: String(err) });
+    }
+  }
+
+  return (
+    <div className="card">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+        <h3 style={{ margin: 0 }}>Services</h3>
+        <button type="button" onClick={() => setShowForm(!showForm)}>{showForm ? "Annuler" : "+ Ajouter un service"}</button>
+      </div>
+      <BoiteMessage message={messageRetour} />
+      {showForm && (
+        <form onSubmit={gererAjout} style={{ padding: "1rem", background: "var(--color-bg-subtle)", borderRadius: "0.5rem", marginBottom: "1rem" }}>
+          <div style={{ display: "grid", gap: "0.5rem", gridTemplateColumns: "1fr 1fr" }}>
+            <label>Nom :<input type="text" value={nouveauService.name} onChange={(e) => setNouveauService({ ...nouveauService, name: e.target.value })} required /></label>
+            <label>Catégorie :
+              <select value={nouveauService.category_id} onChange={(e) => setNouveauService({ ...nouveauService, category_id: Number(e.target.value) })}>
+                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </label>
+            <label>Description :<input type="text" value={nouveauService.description} onChange={(e) => setNouveauService({ ...nouveauService, description: e.target.value })} required /></label>
+            <label>Statut :
+              <select value={nouveauService.status} onChange={(e) => setNouveauService({ ...nouveauService, status: e.target.value })}>
+                <option>Actif</option><option>Maintenance</option><option>Inactif</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" style={{ marginTop: "1rem" }}>Ajouter</button>
+        </form>
+      )}
+      <div className="table-scroll">
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Service", "Description", "Catégorie", "Statut", "Action"].map((col) => (
+                <th key={col} scope="col" style={{ textAlign: "left", padding: "0.5rem 0.75rem", borderBottom: "2px solid var(--color-border)", whiteSpace: "nowrap" }}>{col}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {services.map((s) => (
+              <tr key={s.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
+                <td style={{ padding: "0.6rem 0.75rem", fontWeight: 500 }}>{s.name}</td>
+                <td style={{ padding: "0.6rem 0.75rem", color: "var(--color-muted)" }}>{s.description}</td>
+                <td style={{ padding: "0.6rem 0.75rem" }}>{s.category_name ?? "—"}</td>
+                <td style={{ padding: "0.6rem 0.75rem" }}>{s.status}</td>
+                <td style={{ padding: "0.6rem 0.75rem" }}>
+                  <button onClick={() => gererSuppression(s.id, s.name)} style={{ ...btnSecondaire, color: "var(--color-danger, #c0392b)" }}>Supprimer</button>
+                </td>
+              </tr>
+            ))}
+            {services.length === 0 && (
+              <tr><td colSpan={5} style={{ padding: "0.75rem", color: "var(--color-muted)" }}>Aucun service.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
