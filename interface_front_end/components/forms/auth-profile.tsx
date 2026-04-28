@@ -41,7 +41,6 @@ export function AuthForms() {
   const [age, setAge] = useState("");
   const [genre, setGenre] = useState("Non spécifié");
   const [birthDate, setBirthDate] = useState("");
-  const [memberType, setMemberType] = useState("Résident");
   const [validationToken, setValidationToken] = useState("");
   const [messageRetour, setMessageRetour] = useState<MessageRetour>(null);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -61,7 +60,6 @@ export function AuthForms() {
         age: age ? Number(age) : undefined,
         genre,
         birth_date: birthDate || undefined,
-        member_type: memberType,
       });
       setValidationToken(resultat.validation_token);
       setInscriptionTerminee(true);
@@ -183,13 +181,6 @@ export function AuthForms() {
             </select>
           </label>
           <label>Date de naissance<input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} /></label>
-          <label>Type de membre
-            <select value={memberType} onChange={(e) => setMemberType(e.target.value)}>
-              <option value="Résident">Résident</option>
-              <option value="Technicien">Technicien</option>
-              <option value="Administrateur">Administrateur</option>
-            </select>
-          </label>
         </div>
         <label>Login<input type="text" value={login} onChange={(e) => setLogin(e.target.value)} required placeholder="ex : sofia.amari" /></label>
         <label>Adresse email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="email@exemple.com" /></label>
@@ -250,7 +241,7 @@ export function ProfileForm({ profile }: { profile: Record<string, string | numb
         <div style={{ display: "grid", gap: "0.5rem", gridTemplateColumns: "1fr 1fr" }}>
           <label>Prénom :<input type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} /></label>
           <label>Nom :<input type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} /></label>
-          <label>Âge :<input type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} /></label>
+          <label>Âge :<input type="number" min={0} max={120} value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} /></label>
           <label>Genre :
             <select value={formData.genre} onChange={(e) => setFormData({ ...formData, genre: e.target.value })}>
               <option value="Non spécifié">Non spécifié</option>

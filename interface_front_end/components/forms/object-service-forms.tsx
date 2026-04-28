@@ -109,7 +109,7 @@ export function ObjectManagementForms({ objects: objets, lectureSeule = false }:
     }
   }
 
-  const MODES = ["Automatique", "Manuel", "Eco", "Nuit", "Surveillance continue"];
+  const MODES = ["Automatique", "Manuel", "Eco"];
 
   return (
     <div className="card">
