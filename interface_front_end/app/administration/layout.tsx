@@ -16,10 +16,7 @@ export default function AdminLayout({
           <Link className="nav-link" href="/administration/validation">
             Validation
           </Link>
-          <Link className="nav-link" href="/administration/categories">
-            Objets &amp; Services
-          </Link>
-          <Link className="nav-link" href="/administration/regles">
+<Link className="nav-link" href="/administration/regles">
             Règles
           </Link>
           <Link className="nav-link" href="/administration/personnalisation">

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { PageBlock } from "@/components/page-block";
-import { fetchManagementObjects, fetchServiceConfigurations, fetchAdminServices, fetchAdminCategories } from "@/lib/backend-api";
-import { ObjectManagementForms, ServiceConfigurationsTable, AdminServicesSection } from "@/components/action-forms";
+import { fetchManagementObjects, fetchServiceConfigurations } from "@/lib/backend-api";
+import { ObjectManagementForms, ServiceConfigurationsTable } from "@/components/action-forms";
 
 export const dynamic = "force-dynamic";
 
@@ -11,11 +11,9 @@ export default async function ManagementItemsPage() {
   const estAdmin = role === "administrateur";
   const lectureSeule = !["complexe", "administrateur"].includes(role);
 
-  const [{ items }, { configurations }, adminServices, adminCategories] = await Promise.all([
+  const [{ items }, { configurations }] = await Promise.all([
     fetchManagementObjects(),
     fetchServiceConfigurations(),
-    estAdmin ? fetchAdminServices() : Promise.resolve({ services: [] }),
-    estAdmin ? fetchAdminCategories() : Promise.resolve({ categories: [] }),
   ]);
 
   return (
@@ -38,13 +36,7 @@ export default async function ManagementItemsPage() {
         lectureSeule={lectureSeule}
         suppressionDirecte={estAdmin}
       />
-      <ServiceConfigurationsTable configurations={configurations} lectureSeule={lectureSeule} />
-      {estAdmin && (
-        <AdminServicesSection
-          services={adminServices.services}
-          categories={adminCategories.categories}
-        />
-      )}
+      <ServiceConfigurationsTable configurations={configurations} lectureSeule={lectureSeule} suppressionDirecte={estAdmin} />
     </PageBlock>
   );
 }

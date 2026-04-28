@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
-import { addObject, updateObject, toggleObject, requestDeleteObject, deleteManagedObject, updateServiceConfiguration, addAdminService, deleteAdminService } from "@/lib/backend-api";
+import { addObject, updateObject, toggleObject, requestDeleteObject, deleteManagedObject, updateServiceConfiguration, deleteServiceConfiguration } from "@/lib/backend-api";
 import { BoiteMessage, exigerJetonSession } from "./auth-profile";
 
 type MessageRetour = { type: "success" | "error"; text: string } | null;
@@ -229,9 +229,11 @@ export function ObjectManagementForms({ objects: objets, lectureSeule = false, s
 export function ServiceConfigurationsTable({
   configurations,
   lectureSeule = false,
+  suppressionDirecte = false,
 }: {
   configurations: Array<{ id: number; zone: string; object_name: string | null; service_name: string | null; reglage: string }>;
   lectureSeule?: boolean;
+  suppressionDirecte?: boolean;
 }) {
   const router = useRouter();
   const [messageRetour, setMessageRetour] = useState<MessageRetour>(null);
@@ -252,6 +254,22 @@ export function ServiceConfigurationsTable({
     }
   }
 
+  async function supprimer(id: number) {
+    if (!window.confirm("Supprimer cette configuration de service ?")) return;
+    setMessageRetour(null);
+    try {
+      const jeton = exigerJetonSession();
+      await deleteServiceConfiguration(jeton, id);
+      setMessageRetour({ type: "success", text: "Configuration supprimée." });
+      router.refresh();
+    } catch (err) {
+      setMessageRetour({ type: "error", text: String(err) });
+    }
+  }
+
+  const afficherActions = !lectureSeule;
+  const colonnes = ["Zone", "Objet associé", "Service", "Réglage actuel", ...(afficherActions ? ["Actions"] : [])];
+
   return (
     <div className="card">
       <h3>Configuration des services</h3>
@@ -260,7 +278,7 @@ export function ServiceConfigurationsTable({
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              {["Zone", "Objet associé", "Service", "Réglage actuel", ...(!lectureSeule ? ["Action"] : [])].map((col) => (
+              {colonnes.map((col) => (
                 <th key={col} scope="col" style={{ textAlign: "left", padding: "0.5rem 0.75rem", borderBottom: "2px solid var(--color-border)", whiteSpace: "nowrap" }}>{col}</th>
               ))}
             </tr>
@@ -273,17 +291,22 @@ export function ServiceConfigurationsTable({
                   <td style={{ padding: "0.6rem 0.75rem", color: "var(--color-muted)" }}>{config.object_name ?? "—"}</td>
                   <td style={{ padding: "0.6rem 0.75rem" }}>{config.service_name ?? "—"}</td>
                   <td style={{ padding: "0.6rem 0.75rem" }}>{config.reglage}</td>
-                  {!lectureSeule && (
+                  {afficherActions && (
                     <td style={{ padding: "0.6rem 0.75rem" }}>
-                      <button onClick={() => { if (idEdition === config.id) { setIdEdition(null); } else { setIdEdition(config.id); setReglageEdit(config.reglage); } }} style={btnSecondaire}>
-                        {idEdition === config.id ? "Annuler" : "Modifier"}
-                      </button>
+                      <div className="btn-action-group">
+                        <button onClick={() => { if (idEdition === config.id) { setIdEdition(null); } else { setIdEdition(config.id); setReglageEdit(config.reglage); } }} style={btnSecondaire}>
+                          {idEdition === config.id ? "Annuler" : "Modifier"}
+                        </button>
+                        {suppressionDirecte && (
+                          <button onClick={() => supprimer(config.id)} style={{ ...btnSecondaire, color: "var(--color-danger, #c0392b)" }}>Supprimer</button>
+                        )}
+                      </div>
                     </td>
                   )}
                 </tr>
                 {idEdition === config.id && (
                   <tr key={`edit-${config.id}`}>
-                    <td colSpan={5} style={{ padding: "0.75rem 1rem", background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
+                    <td colSpan={colonnes.length} style={{ padding: "0.75rem 1rem", background: "var(--color-bg-subtle)", borderBottom: "1px solid var(--color-border)" }}>
                       <form onSubmit={(e) => sauvegarder(e, config.id)} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
                         <label style={{ flex: 1, marginBottom: 0 }}>Nouveau réglage :<input type="text" value={reglageEdit} onChange={(e) => setReglageEdit(e.target.value)} required autoFocus /></label>
                         <button type="submit" style={{ alignSelf: "flex-end" }}>Enregistrer</button>

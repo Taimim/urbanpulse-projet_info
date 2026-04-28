@@ -328,6 +328,15 @@ async function traiterRequete(req: NextRequest, parts: string[]): Promise<NextRe
       return reponseJson(200, { ok: true, message: "Configuration mise à jour." });
     }
 
+    if (p.startsWith("/service-configurations/") && method === "DELETE") {
+      const rr = exigerRole(db, req, "administrateur");
+      if (rr.error) return rr.error;
+      const configId = Number(parts[1]);
+      db.prepare("DELETE FROM service_configurations WHERE id=?").run(configId);
+      enregistrerAction(db, Number(rr.user?.id), "service_config_delete", String(configId));
+      return reponseJson(200, { ok: true, message: "Configuration supprimée." });
+    }
+
     // ── Module Gestion ─────────────────────────────────────────────────────
     if (p === "/management/objects" && method === "GET") {
       const rr = exigerRole(db, req, "simple");

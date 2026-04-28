@@ -251,14 +251,6 @@ export function ProfileForm({ profile }: { profile: Record<string, string | numb
             </select>
           </label>
           <label>Date de naissance :<input type="date" value={formData.birth_date} onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })} /></label>
-          <label>Type de membre :
-            <select value={formData.member_type} onChange={(e) => setFormData({ ...formData, member_type: e.target.value })}>
-              <option value="Résident">Résident</option>
-              <option value="Employé">Employé</option>
-              <option value="Gestionnaire">Gestionnaire</option>
-              <option value="Technicien">Technicien</option>
-            </select>
-          </label>
           <label>Changer photo (fichier) :<input type="file" accept="image/*" onChange={handlePhotoUpload} /></label>
           <label>Nouveau mot de passe :<input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="Laisser vide pour ne pas changer" /></label>
         </div>

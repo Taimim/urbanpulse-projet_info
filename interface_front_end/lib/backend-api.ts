@@ -102,6 +102,10 @@ export async function updateServiceConfiguration(token: string, id: number, regl
   return apiPatch<{ message: string }>(`/service-configurations/${id}`, { reglage }, token);
 }
 
+export async function deleteServiceConfiguration(token: string, id: number) {
+  return apiDelete<{ message: string }>(`/service-configurations/${id}`, token);
+}
+
 export async function fetchMemberProfile(login: string) {
   const token = await currentToken();
   return apiGet<{ member: { login: string; age: number | null; genre: string | null; birth_date: string | null; member_type: string | null; photo_url: string | null; first_name: string | null; last_name: string | null } }>(`/users/members/${encodeURIComponent(login)}`, token);
