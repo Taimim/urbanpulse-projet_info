@@ -1,4 +1,5 @@
 "use client";
+//Composant Sidebar : gère le menu de navigation latéral
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -17,6 +18,7 @@ interface NavLink {
   abbr: string;
 }
 
+//Composant principal de la sidebar
 export function Sidebar({ estConnecte, roleUtilisateur, estAdmin, estComplexe }: SidebarProps) {
   const [expanded, setExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -32,6 +34,7 @@ export function Sidebar({ estConnecte, roleUtilisateur, estAdmin, estComplexe }:
     setMobileOpen(false);
   }, [pathname]);
 
+  //ouvrir ou fermer la sidebar et sauvegarde l'etat dans le localStorage
   function toggle() {
     setExpanded((prev) => {
       const next = !prev;
@@ -57,6 +60,7 @@ export function Sidebar({ estConnecte, roleUtilisateur, estAdmin, estComplexe }:
     }
   }
 
+  //supprime les données de session pour la deconnexion
   function handleDeconnexion() {
     sessionStorage.removeItem("auth_token");
     sessionStorage.removeItem("user_info");
