@@ -159,9 +159,9 @@ export const levelProgress = [
 ];
 
 export const levelRules = [
-  { action: "Connexion", points: "+0.25 pt" },
-  { action: "Consultation objet/service", points: "+0.50 pt" },
-  { action: "Mise à jour profil", points: "+0.20 pt" }
+  { action: "Connexion (rôle simple / complexe)", points: "+5 pts" },
+  { action: "Ajout d'un objet (rôle complexe)", points: "+10 pts" },
+  { action: "Modification d'un objet (rôle complexe)", points: "+10 pts" },
 ];
 
 export const userTracking = [

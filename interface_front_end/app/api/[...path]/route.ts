@@ -149,7 +149,8 @@ async function traiterRequete(req: NextRequest, parts: string[]): Promise<NextRe
         return reponseJson(403, { ok: false, error: "Votre compte est en attente de validation par l'administrateur." });
       const token = genererJetonHex(24);
       db.prepare("INSERT INTO sessions(token,user_id,created_at) VALUES(?,?,?)").run(token, user.id, dateIsoActuelle());
-      const updated = attribuerPoints(db, user, 0.25, true, false);
+      const loginPoints = ["simple", "complexe"].includes(String(user.role)) ? 5 : 0;
+      const updated = attribuerPoints(db, user, loginPoints, true, false);
       enregistrerAction(db, Number(updated.id), "connexion", "Connexion utilisateur");
       const newlyValidated = Number(user.newly_validated ?? 0) === 1;
       if (newlyValidated) db.prepare("UPDATE users SET newly_validated=0 WHERE id=?").run(user.id);
@@ -182,10 +183,8 @@ async function traiterRequete(req: NextRequest, parts: string[]): Promise<NextRe
       db.prepare(`UPDATE users SET ${setClause}, updated_at=? WHERE id=?`).run(
         ...updates.map(([, v]) => v), dateIsoActuelle(), user.id
       );
-      const refreshed = attribuerPoints(
-        db, bddLireUn(db, "SELECT * FROM users WHERE id=?", user.id) as LigneBDD, 0.2, false, true
-      );
       enregistrerAction(db, Number(user.id), "profil_update", "Mise à jour profil");
+      const refreshed = bddLireUn(db, "SELECT * FROM users WHERE id=?", user.id) as LigneBDD;
       const { password, ...profile } = refreshed;
       return reponseJson(200, { ok: true, profile });
     }
@@ -361,6 +360,7 @@ async function traiterRequete(req: NextRequest, parts: string[]): Promise<NextRe
         body.connectivity ?? "Wi-Fi", body.battery_state ?? "N/A",
         Number(body.energy_kwh ?? 0), dateIsoActuelle()
       );
+      attribuerPoints(db, bddLireUn(db, "SELECT * FROM users WHERE id=?", rr.user?.id) as LigneBDD, 10, false, true);
       enregistrerAction(db, Number(rr.user?.id), "objet_add", String(body.unique_id));
       return reponseJson(201, { ok: true, message: "Objet ajouté." });
     }
@@ -403,6 +403,7 @@ async function traiterRequete(req: NextRequest, parts: string[]): Promise<NextRe
       db.prepare(`UPDATE objects SET ${setClause}, last_interaction=? WHERE id=?`).run(
         ...updates.map(([, v]) => v), dateIsoActuelle(), objectId
       );
+      attribuerPoints(db, bddLireUn(db, "SELECT * FROM users WHERE id=?", rr.user?.id) as LigneBDD, 10, false, true);
       enregistrerAction(db, Number(rr.user?.id), "objet_update", String(objectId));
       return reponseJson(200, { ok: true, message: "Objet mis à jour." });
     }
